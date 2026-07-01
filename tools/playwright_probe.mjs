@@ -1,11 +1,28 @@
 #!/usr/bin/env node
 // Optional public-page probe. This does not bypass login, paywalls, or CAPTCHA.
 
-const url = process.argv[2];
-const timeoutMs = Number(process.argv[3] || 15000);
+const args = process.argv.slice(2);
+const url = args[0];
+let timeoutMs = 15000;
+
+for (let index = 1; index < args.length; index += 1) {
+  const arg = args[index];
+  if (arg === "--timeout-ms" && args[index + 1]) {
+    timeoutMs = Number(args[index + 1]);
+    index += 1;
+  } else if (arg.startsWith("--timeout-ms=")) {
+    timeoutMs = Number(arg.split("=", 2)[1]);
+  } else if (!arg.startsWith("--")) {
+    timeoutMs = Number(arg);
+  }
+}
+
+if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+  timeoutMs = 15000;
+}
 
 if (!url) {
-  console.error("usage: node tools/playwright_probe.mjs <public-url> [timeout-ms]");
+  console.error("usage: node tools/playwright_probe.mjs <public-url> [timeout-ms|--timeout-ms N]");
   process.exit(2);
 }
 
