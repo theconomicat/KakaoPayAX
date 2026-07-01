@@ -25,6 +25,7 @@ class SkillsAndToolsInventoryTest(unittest.TestCase):
             "public_page_reader.py",
             "research_workbench.py",
             "source_catalog.py",
+            "source_deep_probe.py",
             "source_fetcher.py",
             "technical_indicators.py",
         ]

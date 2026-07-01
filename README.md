@@ -56,6 +56,7 @@ KPS Analyst Workbench는 기업명, 티커, 주제, URL을 입력하면 DART/KIN
 | Yahoo Finance | public chart endpoint | 국내/해외 티커 OHLCV 가격 배열 |
 | The Econmicat | 공개 금융 도구 카탈로그 | Yahoo Finance, Unusual Whales, FRED, SEC EDGAR, Finviz, OpenInsider, Macrotrends, Stock Analysis 후보 검색 |
 | 일반 공개 웹 | adaptive public reader | HTML, meta description, JSON-LD, RSS/feed, `.json`, Jina Reader, 선택적 Playwright |
+| 루프형 공개 소스 probe | source catalog → Playwright/network candidate → public JSON follow | TipRanks earnings page → `payload.json` |
 | 로컬 샘플 | examples/fixtures | 심사자가 네트워크 없이도 demo mode 검증 가능 |
 
 ## 동작 방식
@@ -179,6 +180,7 @@ The Econmicat source catalog:
 ```bash
 python3 tools/source_catalog.py --query "Yahoo Finance" --limit 5
 python3 tools/source_catalog.py --category "옵션 플로우" --query "Unusual Whales" --probe --limit 1
+python3 tools/source_deep_probe.py --query TipRanks --limit 1 --timeout 10 --max-attempts 4 --max-follow 4
 ```
 
 Yahoo Finance public chart:
@@ -200,6 +202,9 @@ python3 tools/byul_client.py indices --indexes fear-greed vix kospi-volatility d
 검증:
 
 ```bash
+python3 -m pip install --user -r requirements-optional.txt
+npm install
+npx playwright install chromium
 python3 -m unittest discover -s tests
 python3 -m py_compile $(find tools scripts -name '*.py' -print)
 python3 scripts/smoke_check.py
@@ -242,8 +247,9 @@ submission.zip
 현재 버전에서 확인한 결과:
 
 ```text
-Ran 22 tests in 0.007s
+Ran 26 tests in 0.004s
 OK
+Plugin validation passed
 smoke check ok
 submission structure ok
 No errors detected in compressed data of dist/submission.zip.
@@ -259,6 +265,7 @@ No errors detected in compressed data of dist/submission.zip.
 - Byul news/calendar/index API 실행
 - The Econmicat에서 Yahoo Finance 후보 검색
 - Unusual Whales 옵션 플로우 후보 probe
+- TipRanks earnings page 공개 렌더링 및 `payload.json` follow
 - Yahoo Finance chart endpoint로 `000660.KS` 가격 데이터 수집
 - source packet JSON/Markdown 생성
 
@@ -284,7 +291,7 @@ KPS Analyst Workbench는 카카오페이증권 리서치센터 애널리스트, 
 
 ### 문항 3. 플러그인은 어떻게 작동하나요?
 
-사용자가 기업명, 티커, 주제, URL을 입력하면 orchestration skill이 필요한 소스군을 고릅니다. DART는 공개 검색에서 `corp_code`와 `rcpNo`를 찾고 report viewer와 OpenDART XBRL viewer 표를 읽습니다. KIND는 회사 자동완성, 공시 검색, viewer, original HTML을 따라가며 표를 추출합니다. Byul.ai는 뉴스, 캘린더, 어닝, 공포탐욕지수, VIX, KOSPI 변동성 등을 가져옵니다. Yahoo Finance는 public chart endpoint로 OHLCV를 읽고, The Econmicat catalog는 Yahoo, Unusual Whales, FRED, SEC EDGAR, Finviz 등 후보 소스를 찾습니다. 어려운 공개 페이지는 browser header, 모바일/RSS/feed/JSON 변형, Jina Reader, optional TLS impersonation, optional Playwright 순서로 시도합니다. 결과는 source packet에 URL, access status, trace, 표, 숫자, caveat로 저장합니다. 로그인/페이월/CAPTCHA는 넘지 않고 실패 상태를 기록합니다.
+사용자가 기업명, 티커, 주제, URL을 입력하면 orchestration skill이 필요한 소스군을 고릅니다. DART는 공개 검색에서 `corp_code`와 `rcpNo`를 찾고 report viewer와 OpenDART XBRL viewer 표를 읽습니다. KIND는 회사 자동완성, 공시 검색, viewer, original HTML을 따라가며 표를 추출합니다. Byul.ai는 뉴스, 캘린더, 어닝, 공포탐욕지수, VIX, KOSPI 변동성 등을 가져옵니다. Yahoo Finance는 public chart endpoint로 OHLCV를 읽고, The Econmicat catalog는 Yahoo, TipRanks, Unusual Whales, FRED 등 후보 소스를 찾습니다. 어려운 공개 페이지는 browser header, 모바일/RSS/feed/JSON, Jina Reader, TLS impersonation, Playwright 순서로 시도합니다. `source_deep_probe`는 공개 network JSON 후보까지 bounded loop로 follow합니다. 로그인/페이월/CAPTCHA는 넘지 않고 trace를 기록합니다.
 
 ### 문항 4. AI를 어떻게 썼나요?
 
@@ -292,7 +299,7 @@ AI에는 해커톤 규정 해석, 카카오페이증권에 맞는 문제 정의 
 
 ### 문항 5. 어떻게 검증했나요?
 
-예시는 `삼성전자 사업보고서`와 `000660.KS 가격 데이터`입니다. DART 공개 검색으로 사업보고서 `rcpNo`를 찾고 report viewer와 OpenDART XBRL viewer 표를 추출했습니다. KIND도 회사 검색, 공시 검색, original HTML 수집을 확인했습니다. Yahoo chart endpoint는 `000660.KS` OHLCV를 가져왔고, Byul은 뉴스·경제 캘린더·Fear & Greed·VIX·KOSPI 변동성을 반환했습니다. 예외 상황은 Unusual Whales 같은 외부 소스에서 확인했습니다. 공개 메타데이터는 읽고, 유료/API 토큰 경계는 넘지 않으며 trace를 남깁니다. 의심한 부분은 LLM이 읽지 않은 자료를 읽은 것처럼 말하는 문제였고, access status와 caveat를 강제해 고쳤습니다. `22`개 unit test, `py_compile`, smoke check, zip 구조 검증을 통과했습니다.
+예시는 `삼성전자 사업보고서`, `000660.KS 가격 데이터`, `TipRanks earnings`입니다. DART 공개 검색으로 사업보고서 `rcpNo`를 찾고 report viewer와 OpenDART XBRL viewer 표를 추출했습니다. KIND도 회사 검색, 공시 검색, original HTML 수집을 확인했습니다. Yahoo chart endpoint는 `000660.KS` OHLCV를 가져왔고, Byul은 뉴스·캘린더·Fear & Greed·VIX를 반환했습니다. TipRanks는 HTTP 403 후 Playwright로 earnings table을 읽고 공개 `payload.json`까지 follow했습니다. 유료/API 토큰 경계는 넘지 않습니다. 의심한 부분은 LLM이 읽지 않은 자료를 말하는 문제였고, access status와 trace를 강제해 고쳤습니다. unit test, compile, smoke, zip 검증을 통과했습니다.
 
 ## 출처와 참고
 

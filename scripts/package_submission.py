@@ -20,6 +20,7 @@ EXCLUDE_NAMES = {
     "build",
     "dist",
     "logs",
+    "node_modules",
     "outputs",
 }
 

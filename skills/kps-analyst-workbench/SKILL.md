@@ -21,9 +21,10 @@ The workflow is not "write an investment recommendation." The workflow is:
 6. Extract OpenDART XBRL viewer fact tables when available.
 7. Add Byul news, calendar, earnings-watch, sentiment, and volatility context when useful.
 8. Use the public source catalog to find Yahoo Finance, Unusual Whales, FRED, SEC, Finviz, Stock Analysis, Macrotrends, or other market-source candidates only when the user request needs them.
-9. Add financial, market, technical, and investor-lens notes.
-10. Produce a Research Source Packet.
-11. Optionally produce a Draft Analyst Memo based only on the packet.
+9. Use `tools/source_deep_probe.py` when a catalog source needs a bounded follow-up loop through public browser-rendered network candidates.
+10. Add financial, market, technical, and investor-lens notes.
+11. Produce a Research Source Packet.
+12. Optionally produce a Draft Analyst Memo based only on the packet.
 
 ## Hard Rules
 
@@ -37,6 +38,7 @@ The workflow is not "write an investment recommendation." The workflow is:
 - For DART public reports, prefer the no-key route: public search result table, report viewer sections, then OpenDART XBRL viewer fact tables.
 - For KIND public reports, prefer the no-key route: company autocomplete, company disclosure search, disclosure viewer, then original external HTML.
 - For broad market sources, search `tools/source_catalog.py` first, then fetch only the selected public sources needed for the user's question.
+- For sources like TipRanks that expose useful public data only after browser rendering, use `tools/source_deep_probe.py` to open the page, inspect public network candidates, and follow a bounded number of public JSON/RSS/API URLs.
 - If a source cannot be accessed, record `blocked`, `auth_required`, `not_found`, or `partial`; do not infer its contents.
 - Separate facts, extracted claims, analyst notes, and open questions.
 - Put every material claim near a source URL, source name, or explicit "sample fixture" label.
@@ -101,6 +103,7 @@ Optional source catalog routing:
 python3 tools/source_catalog.py --query "Yahoo Finance" --limit 5
 python3 tools/source_catalog.py --category "옵션 플로우" --query "Unusual Whales" --limit 3
 python3 tools/source_catalog.py --category "옵션 플로우" --query "Unusual Whales" --probe --browser --limit 1
+python3 tools/source_deep_probe.py --query TipRanks --limit 1 --timeout 10 --max-attempts 4 --max-follow 4
 python3 tools/market_data_reader.py AAPL --period 1mo --provider yahoo
 ```
 
