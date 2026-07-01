@@ -20,11 +20,12 @@ The workflow is not "write an investment recommendation." The workflow is:
 5. Search DART and KIND public disclosures and extract DART/KIND/company filing tables when available.
 6. Extract OpenDART XBRL viewer fact tables when available.
 7. Add Byul news, calendar, earnings-watch, sentiment, and volatility context when useful.
-8. Use the public source catalog to find Yahoo Finance, Unusual Whales, FRED, SEC, Finviz, Stock Analysis, Macrotrends, or other market-source candidates only when the user request needs them.
-9. Use `tools/source_deep_probe.py` when a catalog source needs a bounded follow-up loop through public browser-rendered network candidates.
-10. Add financial, market, technical, and investor-lens notes.
-11. Produce a Research Source Packet.
-12. Optionally produce a Draft Analyst Memo based only on the packet.
+8. Add SEC EDGAR companyfacts and FRED public macro series when US-company or macro context is useful.
+9. Use the public source catalog and OpenBB-inspired no-key provider catalog to find Yahoo Finance, Unusual Whales, FRED, SEC, Finviz, Stock Analysis, Macrotrends, Ken French, or other market-source candidates only when the user request needs them.
+10. Use `tools/source_deep_probe.py` when a catalog source needs a bounded follow-up loop through public browser-rendered network candidates.
+11. Add financial, market, technical, and investor-lens notes.
+12. Produce a Research Source Packet.
+13. Optionally produce a Draft Analyst Memo based only on the packet.
 
 ## Hard Rules
 
@@ -37,7 +38,10 @@ The workflow is not "write an investment recommendation." The workflow is:
 - For DART/KIND or company filings, extract visible filing tables and line items before summarizing.
 - For DART public reports, prefer the no-key route: public search result table, report viewer sections, then OpenDART XBRL viewer fact tables.
 - For KIND public reports, prefer the no-key route: company autocomplete, company disclosure search, disclosure viewer, then original external HTML.
+- For US companies, prefer SEC public ticker lookup and companyfacts before general web scraping.
+- For macro context, prefer FRED graph CSV public routes before general web scraping.
 - For broad market sources, search `tools/source_catalog.py` first, then fetch only the selected public sources needed for the user's question.
+- Use `tools/openbb_public_sources.py` to discover no-key public providers inspired by OpenBB's provider-routing model. Do not copy OpenBB code.
 - For sources like TipRanks that expose useful public data only after browser rendering, use `tools/source_deep_probe.py` to open the page, inspect public network candidates, and follow a bounded number of public JSON/RSS/API URLs.
 - If a source cannot be accessed, record `blocked`, `auth_required`, `not_found`, or `partial`; do not infer its contents.
 - Separate facts, extracted claims, analyst notes, and open questions.
@@ -100,11 +104,14 @@ python3 tools/byul_client.py indices --indexes fear-greed vix kospi-volatility
 Optional source catalog routing:
 
 ```bash
+python3 tools/openbb_public_sources.py --query "SEC FRED" --limit 5
 python3 tools/source_catalog.py --query "Yahoo Finance" --limit 5
 python3 tools/source_catalog.py --category "옵션 플로우" --query "Unusual Whales" --limit 3
 python3 tools/source_catalog.py --category "옵션 플로우" --query "Unusual Whales" --probe --browser --limit 1
 python3 tools/source_deep_probe.py --query TipRanks --limit 1 --timeout 10 --max-attempts 4 --max-follow 4
 python3 tools/market_data_reader.py AAPL --period 1mo --provider yahoo
+python3 tools/sec_edgar_client.py lookup AAPL --limit 3
+python3 tools/fred_public_client.py DGS10 --limit 10
 ```
 
 Optional technical indicators:

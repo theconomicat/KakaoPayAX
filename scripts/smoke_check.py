@@ -16,6 +16,13 @@ def run(cmd: list[str]) -> None:
     subprocess.run(cmd, cwd=ROOT, check=True)
 
 
+def run_json(cmd: list[str]) -> dict:
+    print("+", " ".join(cmd))
+    completed = subprocess.run(cmd, cwd=ROOT, check=True, capture_output=True, text=True)
+    print(completed.stdout)
+    return json.loads(completed.stdout)
+
+
 def main() -> int:
     run(
         [
@@ -52,7 +59,29 @@ def main() -> int:
             "3",
         ]
     )
+    openbb_sources = run_json(
+        [
+            sys.executable,
+            "tools/openbb_public_sources.py",
+            "--query",
+            "SEC FRED",
+            "--limit",
+            "5",
+        ]
+    )
+    provider_names = {provider["name"] for provider in openbb_sources.get("providers", [])}
+    if "SEC EDGAR companyfacts" not in provider_names or "FRED graph CSV" not in provider_names:
+        raise SystemExit("OpenBB-inspired provider catalog did not return SEC and FRED candidates")
     run([sys.executable, "tools/market_data_reader.py", "000660.KS", "--period", "1mo"])
+    fred = run_json([sys.executable, "tools/fred_public_client.py", "DGS10", "--limit", "2"])
+    if fred.get("access_status") != "ok" or not fred.get("latest"):
+        raise SystemExit("FRED public CSV route failed")
+    sec_lookup = run_json([sys.executable, "tools/sec_edgar_client.py", "lookup", "AAPL", "--limit", "2"])
+    if sec_lookup.get("access_status") != "ok" or not sec_lookup.get("matches"):
+        raise SystemExit("SEC ticker lookup failed")
+    sec_facts = run_json([sys.executable, "tools/sec_edgar_client.py", "facts", "0000320193", "--limit", "1"])
+    if sec_facts.get("access_status") != "ok" or not sec_facts.get("facts"):
+        raise SystemExit("SEC companyfacts failed")
     run(
         [
             sys.executable,
@@ -164,6 +193,22 @@ def main() -> int:
         raise SystemExit("no KIND original HTML sources captured")
     if not any(source.get("retrieval_method") == "byul_api" for source in raw["sources"]):
         raise SystemExit("no Byul API sources captured")
+    log_manifest = run_json([sys.executable, "scripts/check_logs.py", "logs"])
+    if log_manifest.get("status") != "ok":
+        raise SystemExit("log validation failed")
+    mcp = subprocess.run(
+        [sys.executable, "tools/kps_mcp_server.py"],
+        cwd=ROOT,
+        input='{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}\n',
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    mcp_response = json.loads(mcp.stdout.splitlines()[0])
+    tool_names = {tool["name"] for tool in mcp_response["result"]["tools"]}
+    for tool_name in {"openbb_public_sources", "fred_series", "sec_companyfacts"}:
+        if tool_name not in tool_names:
+            raise SystemExit(f"MCP tool missing: {tool_name}")
     print("smoke check ok")
     return 0
 

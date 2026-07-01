@@ -26,10 +26,17 @@ def main(argv: list[str] | None = None) -> int:
         for item in missing:
             print(f"missing: {item}")
         return 1
+    log_files = [
+        path
+        for path in (root / "logs").rglob("*")
+        if path.is_file() and path.suffix.lower() in {".jsonl", ".json", ".md", ".txt"}
+    ]
+    if not any(path.suffix.lower() == ".jsonl" for path in log_files):
+        print("missing: logs/*.jsonl")
+        return 1
     print("submission structure ok")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

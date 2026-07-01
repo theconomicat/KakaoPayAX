@@ -8,8 +8,15 @@ class ManifestAndRulesTest(unittest.TestCase):
         manifest = json.loads(Path(".codex-plugin/plugin.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["name"], "kps-analyst-workbench")
         self.assertEqual(manifest["skills"], "./skills/")
+        self.assertEqual(manifest["mcpServers"], "./.mcp.json")
         self.assertIn("interface", manifest)
         self.assertIsInstance(manifest["interface"]["defaultPrompt"], list)
+
+    def test_mcp_config_exposes_no_key_local_server(self):
+        config = json.loads(Path(".mcp.json").read_text(encoding="utf-8"))
+        server = config["mcpServers"]["kps-public-finance"]
+        self.assertEqual(server["command"], "python3")
+        self.assertIn("tools/kps_mcp_server.py", server["args"])
 
     def test_source_policy_defines_access_statuses(self):
         schema = json.loads(Path("rules/output_schema.json").read_text(encoding="utf-8"))

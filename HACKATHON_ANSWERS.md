@@ -20,10 +20,15 @@ KPS Analyst Workbench는 카카오페이증권 리서치센터 애널리스트, 
 - https://dart.fss.or.kr/dsab007/main.do
 - https://kind.krx.co.kr/main.do?method=loadInitPage&scrnmode=3
 - https://api.byul.ai/api/v1/news
+- https://openbb.co/products/odp/
+- https://docs.openbb.co/odp/python/extensions/providers
+- https://www.sec.gov/files/company_tickers.json
+- https://data.sec.gov/api/xbrl/companyfacts/
+- https://fred.stlouisfed.org/graph/fredgraph.csv
 
 ## 문항 3. 플러그인은 어떻게 작동하나요?
 
-사용자가 기업명, 티커, 주제, URL을 입력하면 orchestration skill이 필요한 소스군을 고릅니다. DART는 공개 검색에서 `corp_code`와 `rcpNo`를 찾고 report viewer와 OpenDART XBRL viewer 표를 읽습니다. KIND는 회사 자동완성, 공시 검색, viewer, original HTML을 따라가며 표를 추출합니다. Byul.ai는 뉴스, 캘린더, 어닝, 공포탐욕지수, VIX, KOSPI 변동성 등을 가져옵니다. Yahoo Finance는 public chart endpoint로 OHLCV를 읽고, The Econmicat catalog는 Yahoo, TipRanks, Unusual Whales, FRED 등 후보 소스를 찾습니다. 어려운 공개 페이지는 browser header, 모바일/RSS/feed/JSON, Jina Reader, TLS impersonation, Playwright 순서로 시도합니다. `source_deep_probe`는 공개 network JSON 후보까지 bounded loop로 follow합니다. 로그인/페이월/CAPTCHA는 넘지 않고 trace를 기록합니다.
+사용자가 기업명, 티커, 주제, URL을 입력하면 orchestration skill과 로컬 MCP 서버가 필요한 소스군을 고릅니다. DART/KIND는 공개 검색과 viewer 표를 읽고, OpenDART XBRL은 fact table을 추출합니다. Byul.ai는 뉴스, 캘린더, 어닝, 공포탐욕지수, VIX를 가져옵니다. Yahoo는 public chart로 OHLCV를 읽고, SEC EDGAR는 CIK lookup/companyfacts, FRED는 graph CSV로 macro series를 가져옵니다. The Econmicat과 OpenBB-inspired catalog는 TipRanks, Unusual Whales, Finviz, Ken French 등 no-key 후보를 찾습니다. 어려운 공개 페이지는 header, 모바일/RSS/feed/JSON, Jina Reader, TLS impersonation, Playwright 순서로 시도하고, `source_deep_probe`는 공개 network JSON만 bounded loop로 follow합니다. 로그인/페이월/CAPTCHA는 넘지 않고 trace를 기록합니다.
 
 ## 문항 4. AI를 어떻게 썼나요?
 
@@ -31,4 +36,4 @@ AI에는 해커톤 규정 해석, 카카오페이증권에 맞는 문제 정의 
 
 ## 문항 5. 어떻게 검증했나요?
 
-예시는 `삼성전자 사업보고서`, `000660.KS 가격 데이터`, `TipRanks earnings`입니다. DART 공개 검색으로 사업보고서 `rcpNo`를 찾고 report viewer와 OpenDART XBRL viewer 표를 추출했습니다. KIND도 회사 검색, 공시 검색, original HTML 수집을 확인했습니다. Yahoo chart endpoint는 `000660.KS` OHLCV를 가져왔고, Byul은 뉴스·캘린더·Fear & Greed·VIX를 반환했습니다. TipRanks는 HTTP 403 후 Playwright로 earnings table을 읽고 공개 `payload.json`까지 follow했습니다. 유료/API 토큰 경계는 넘지 않습니다. 의심한 부분은 LLM이 읽지 않은 자료를 말하는 문제였고, access status와 trace를 강제해 고쳤습니다. unit test, compile, smoke, zip 검증을 통과했습니다.
+예시는 `삼성전자 사업보고서`, `000660.KS 가격`, `TipRanks earnings`, `AAPL SEC facts`, `FRED DGS10`입니다. DART/KIND/OpenDART 표 추출, Yahoo OHLCV, Byul 뉴스·캘린더·지수, SEC companyfacts, FRED graph CSV를 확인했습니다. TipRanks는 HTTP 403 후 Playwright로 earnings table을 읽고 공개 `payload.json`만 follow했습니다. MCP는 tools/list로 no-key 도구 노출을 검증했습니다. 로그는 원본 JSONL을 수정하지 않고 `check_logs.py`로 파싱 오류, 파일 수, 크기를 manifest에 기록했습니다. 유료/API 토큰 경계는 넘지 않습니다. unit test, compile, smoke, plugin validator, zip 검증을 통과했습니다.

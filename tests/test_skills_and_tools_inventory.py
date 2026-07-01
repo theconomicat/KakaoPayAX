@@ -21,12 +21,16 @@ class SkillsAndToolsInventoryTest(unittest.TestCase):
             "financial_snapshot.py",
             "kind_public_client.py",
             "market_data_reader.py",
+            "openbb_public_sources.py",
             "playwright_probe.mjs",
             "public_page_reader.py",
             "research_workbench.py",
+            "sec_edgar_client.py",
             "source_catalog.py",
             "source_deep_probe.py",
             "source_fetcher.py",
+            "fred_public_client.py",
+            "kps_mcp_server.py",
             "technical_indicators.py",
         ]
         for tool in expected:

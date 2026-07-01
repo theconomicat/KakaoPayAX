@@ -1,3 +1,10 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "kps-public-finance": {
+      "command": "python3",
+      "args": [
+        "tools/kps_mcp_server.py"
+      ]
+    }
+  }
 }

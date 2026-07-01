@@ -39,6 +39,16 @@ def main() -> int:
     logs = BUILD / "logs"
     if (ROOT / "logs").exists():
         shutil.copytree(ROOT / "logs", logs, ignore=ignore_filter)
+        subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "check_logs.py"),
+                str(logs),
+                "--output",
+                str(logs / "log_manifest.json"),
+            ],
+            check=True,
+        )
     else:
         logs.mkdir()
         (logs / "README.md").write_text(
