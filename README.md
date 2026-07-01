@@ -42,6 +42,39 @@ KPS Analyst Workbench는 기업명, 티커, 주제, URL을 입력하면 DART/KIN
    - 소스 패킷에 있는 근거만 사용해 초안 메모를 만듭니다.
    - 매수, 매도, 보유, 목표주가, 수익률 예측은 생성하지 않습니다.
 
+## 동작 플로우
+
+이 플러그인은 Codex에게 “금융 리서치용 도구 묶음”을 붙여 주는 구조입니다. 사용자는 자연어로 기업, 티커, 주제, URL을 물어보고, Codex는 아래 순서로 필요한 도구만 선택해 실행합니다.
+
+```text
+1. 요청 해석
+   기업명, 티커, 시장, 주제, 보고서 종류, URL을 분리합니다.
+
+2. 소스 라우팅
+   공식 공시가 필요한지, 뉴스/캘린더가 필요한지, 가격/기술 지표가 필요한지,
+   외부 금융 사이트 후보 탐색이 필요한지 결정합니다.
+
+3. 공개 데이터 수집
+   DART, OpenDART XBRL, KIND, Byul.ai, Yahoo Finance, The Econmicat catalog,
+   public page reader, source deep probe 중 필요한 경로만 실행합니다.
+
+4. 접근 상태 기록
+   각 출처를 ok, partial, blocked, auth_required, not_found로 남기고,
+   어떤 route를 시도했는지 trace에 기록합니다.
+
+5. 구조화
+   공시 표, XBRL fact table, 뉴스, 경제 캘린더, 어닝 정보, 가격 데이터,
+   기술 지표, 외부 후보 소스를 Research Source Packet으로 정리합니다.
+
+6. 검토 가드레일
+   읽지 못한 출처는 추정하지 않고, 투자 추천·목표주가·수익률 예측은 생성하지 않습니다.
+
+7. 선택 산출물
+   사용자가 원하면 source packet에 포함된 근거만 사용해 Draft Analyst Memo를 작성합니다.
+```
+
+예를 들어 “삼성전자 최근 사업보고서와 반도체 뉴스 흐름을 정리해줘”라는 요청이 들어오면, 플러그인은 DART/KIND에서 공시와 표를 찾고, Byul에서 관련 뉴스와 시장 지표를 가져오며, 필요한 경우 Yahoo Finance 가격 데이터와 The Econmicat catalog 후보 소스를 추가합니다. 최종 답변은 결론을 단정하는 보고서가 아니라, 사람이 판단할 수 있는 근거 묶음으로 끝납니다.
+
 ## 접근 가능한 데이터
 
 현재 구현은 API 키 없이 실행 가능한 공개 경로를 우선합니다.
