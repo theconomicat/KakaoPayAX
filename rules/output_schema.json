@@ -1,0 +1,30 @@
+{
+  "name": "research_source_packet",
+  "version": "0.1.0",
+  "required_sections": [
+    "Request Interpretation",
+    "Source Map",
+    "News and Market Narrative Sources",
+    "Disclosure and Filing Sources",
+    "Financial Snapshot",
+    "Market and Technical Signals",
+    "Investor Lens Notes",
+    "Draft Analyst Memo",
+    "Conflicts, Gaps, and Follow-up Questions",
+    "Guardrail Notice"
+  ],
+  "access_status_values": [
+    "ok",
+    "partial",
+    "blocked",
+    "auth_required",
+    "not_found",
+    "fixture"
+  ],
+  "forbidden_recommendation_terms": [
+    "buy recommendation",
+    "sell recommendation",
+    "target price",
+    "expected return"
+  ]
+}

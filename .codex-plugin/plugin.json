@@ -1,0 +1,35 @@
+{
+  "name": "kps-analyst-workbench",
+  "version": "0.1.0",
+  "description": "Codex analyst assistant for KakaoPay Securities research source gathering, source packets, and draft research memos.",
+  "author": {
+    "name": "Easton"
+  },
+  "license": "MIT",
+  "keywords": [
+    "kakaopay-securities",
+    "research",
+    "analyst",
+    "finance",
+    "source-intelligence"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "KPS Analyst Workbench",
+    "shortDescription": "Gather sources and draft analyst research packets.",
+    "longDescription": "A Codex plugin for KakaoPay Securities-style research center workflows. It gathers public sources, organizes news, disclosures, financial snapshots, technical signals, investor lenses, and produces traceable source packets plus optional draft research memos without requiring API keys for demo mode.",
+    "developerName": "Easton",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Create a research source packet for SK Hynix HBM.",
+      "Turn this source packet into an analyst memo.",
+      "Check source gaps and investment guardrails."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

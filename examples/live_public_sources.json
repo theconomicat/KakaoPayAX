@@ -1,0 +1,153 @@
+{
+  "company": {
+    "name": "KakaoPay Securities",
+    "ticker": "private-company",
+    "market": "Korea financial investment"
+  },
+  "request": {
+    "topic": "Research center workflow evidence for public-source analyst assistant",
+    "period": "public pages available on 2026-07-01"
+  },
+  "urls": [
+    {
+      "type": "company_background",
+      "url": "https://www.kakaopaysec.com/company/about/dynamicPage.do"
+    },
+    {
+      "type": "analyst_reference",
+      "url": "https://www.kakaopaysec.com/research/industry/dynamicPage.do"
+    },
+    {
+      "type": "financials",
+      "url": "https://www.kakaopaysec.com/management/routine/dynamicPage.do"
+    },
+    {
+      "type": "news",
+      "url": "https://www.kakaopaysec.com/company/news_page/dynamicNewsDetail.do?id=90"
+    },
+    {
+      "type": "disclosure",
+      "url": "https://opendart.fss.or.kr/intro/main.do"
+    },
+    {
+      "type": "disclosure",
+      "url": "https://kind.krx.co.kr/main.do?method=loadInitPage&scrnmode=3"
+    }
+  ],
+  "filing_urls": [
+    {
+      "type": "financials",
+      "url": "examples/sample_dart_filing.html"
+    },
+    {
+      "type": "disclosure",
+      "url": "https://www.kakaopaysec.com/management/routine/dynamicPage.do"
+    }
+  ],
+  "dart_public": {
+    "company": "삼성전자",
+    "start_date": "20250101",
+    "end_date": "20260701",
+    "report_name": "사업보고서",
+    "max_reports": 1,
+    "max_documents": 5,
+    "max_xbrl_roles": 5,
+    "max_tables": 8,
+    "max_rows": 20,
+    "include_xbrl": true
+  },
+  "kind_public": {
+    "company": "삼성전자",
+    "start_date": "2026-01-01",
+    "end_date": "2026-07-01",
+    "report_name": "사업보고서",
+    "limit": 1,
+    "fetch_documents": true,
+    "max_tables": 12,
+    "max_rows": 20
+  },
+  "byul": {
+    "news": {
+      "lang": "ko",
+      "query": "실적",
+      "limit": 3,
+      "minImportance": 3
+    },
+    "calendar": {
+      "range": "today",
+      "lang": "ko",
+      "limit": 5
+    },
+    "earnings": {
+      "range": "this-week",
+      "lang": "ko",
+      "query": "실적",
+      "limit": 5,
+      "news_limit": 3,
+      "minImportance": 3
+    },
+    "indices": {
+      "indexes": [
+        "fear-greed",
+        "vix",
+        "kospi-volatility",
+        "dxy"
+      ]
+    }
+  },
+  "financials": {
+    "source": "fixture://financials/kakaopaysec-workflow-demo",
+    "currency": "KRW sample units",
+    "current": {
+      "period": "Demo current period",
+      "revenue": 100000,
+      "operating_profit": 12000,
+      "net_income": 8000,
+      "assets": 180000,
+      "liabilities": 70000,
+      "equity": 110000,
+      "operating_cash_flow": 10000
+    },
+    "prior": {
+      "period": "Demo prior period",
+      "revenue": 92000,
+      "operating_profit": 9000,
+      "net_income": 6500,
+      "assets": 160000,
+      "liabilities": 65000,
+      "equity": 95000,
+      "operating_cash_flow": 8500
+    }
+  },
+  "market_data": {
+    "source": "fixture://market-data/kakaopaysec-workflow-demo",
+    "prices": [
+      {"date": "2026-01-02", "close": 100, "volume": 1000},
+      {"date": "2026-01-03", "close": 101, "volume": 1050},
+      {"date": "2026-01-04", "close": 100, "volume": 980},
+      {"date": "2026-01-05", "close": 102, "volume": 1150},
+      {"date": "2026-01-06", "close": 103, "volume": 1200},
+      {"date": "2026-01-07", "close": 104, "volume": 1250},
+      {"date": "2026-01-08", "close": 103, "volume": 1180},
+      {"date": "2026-01-09", "close": 105, "volume": 1300},
+      {"date": "2026-01-10", "close": 106, "volume": 1320},
+      {"date": "2026-01-11", "close": 107, "volume": 1400},
+      {"date": "2026-01-12", "close": 106, "volume": 1380},
+      {"date": "2026-01-13", "close": 108, "volume": 1450},
+      {"date": "2026-01-14", "close": 109, "volume": 1500},
+      {"date": "2026-01-15", "close": 110, "volume": 1550},
+      {"date": "2026-01-16", "close": 111, "volume": 1600},
+      {"date": "2026-01-17", "close": 110, "volume": 1520},
+      {"date": "2026-01-18", "close": 112, "volume": 1660},
+      {"date": "2026-01-19", "close": 113, "volume": 1700},
+      {"date": "2026-01-20", "close": 112, "volume": 1650},
+      {"date": "2026-01-21", "close": 114, "volume": 1720}
+    ]
+  },
+  "follow_up_questions": [
+    "Which KakaoPay Securities research workflows are most repetitive before publishing a note?",
+    "Which live disclosures or filings should be added for the covered company or industry?",
+    "Which source types should be treated as primary evidence versus weak context?",
+    "Which facts require analyst review before becoming a published memo?"
+  ]
+}
